@@ -43,50 +43,26 @@ def notify_teams(digest: dict, dashboard_url: str) -> None:
     """Envia um Adaptive Card compatível com o Teams via Power Automate (Workflows).
 
     Os antigos "Incoming Webhook" (Office 365 Connectors) foram descontinuados
-    pela Microsoft. O webhook deve vir de um fluxo do Power Automate criado com o
-    template "Post to a channel when a webhook request is received".
+    pela Microsoft. O webhook deve vir de um fluxo do Power Automate criado com
+    o gatilho "Quando uma solicitação de webhook do Teams é recebida" + a ação
+    "Postar mensagem em um chat ou canal".
+
+    O corpo enviado é {"text": "<html>"}; no campo Mensagem do fluxo, referencie
+    esse conteúdo com a expressão:  triggerBody()?['text']
     """
     url = os.environ.get("TEAMS_WEBHOOK_URL")
     if not url:
         return
-    body = [
-        {
-            "type": "TextBlock",
-            "size": "Large",
-            "weight": "Bolder",
-            "color": "Accent",
-            "text": f"🛰️ Radar de IA — {digest.get('date', '')}",
-        },
-        {"type": "TextBlock", "weight": "Bolder", "text": "TL;DR do dia", "spacing": "Medium"},
-    ]
-    for b in _top_bullets(digest):
-        body.append({"type": "TextBlock", "text": f"• {b}", "wrap": True, "spacing": "None"})
+    bullets = "".join(f"<li>{b}</li>" for b in _top_bullets(digest))
+    html = (
+        f"<h3>🛰️ Radar de IA — {digest.get('date', '')}</h3>"
+        f"<b>TL;DR do dia</b><ul>{bullets}</ul>"
+    )
+    if dashboard_url:
+        html += f'<p><a href="{dashboard_url}">Ver compilado completo no dashboard →</a></p>'
 
-    card = {
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "type": "AdaptiveCard",
-                    "version": "1.4",
-                    "body": body,
-                    "actions": [
-                        {
-                            "type": "Action.OpenUrl",
-                            "title": "Ver dashboard completo",
-                            "url": dashboard_url,
-                        }
-                    ]
-                    if dashboard_url
-                    else [],
-                },
-            }
-        ],
-    }
     try:
-        r = httpx.post(url, json=card, timeout=TIMEOUT)
+        r = httpx.post(url, json={"text": html}, timeout=TIMEOUT)
         r.raise_for_status()
         print("[notify] Teams enviado")
     except Exception as exc:  # noqa: BLE001
