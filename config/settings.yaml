@@ -12,10 +12,14 @@ team_context: |
 
 # Modelos Claude usados
 models:
-  # síntese final do digest (mais capaz)
-  synthesis: claude-opus-4-8
-  # (reservado para filtragem em massa futura, mais barato)
-  triage: claude-haiku-4-5-20251001
+  # síntese final do digest — Haiku 4.5: mais barato ($1/$5 por milhão de
+  # tokens), dá conta bem de resumir/agrupar/rankear notícias.
+  # Para mais qualidade (a um custo maior), troque por:
+  #   claude-sonnet-5   ($3/$15) — meio-termo
+  #   claude-opus-4-8   ($5/$25) — máxima capacidade
+  synthesis: claude-haiku-4-5
+  # (reservado para filtragem em massa futura, mais barato ainda)
+  triage: claude-haiku-4-5
 
 # Quantos itens no máximo enviar para a IA sintetizar por dia
 max_items_to_synthesize: 60
