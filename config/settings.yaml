@@ -1,0 +1,27 @@
+# Configurações gerais do pipeline.
+
+# Contexto do time — usado pela IA para pontuar relevância.
+# Quanto mais específico, melhor o ranking.
+team_context: |
+  Somos o time de IA do Grupo Casas Bahia (varejo brasileiro).
+  Desenvolvemos projetos de IA aplicada: atendimento/chatbots, recomendação,
+  busca, agentes autônomos, automação de processos, análise de dados e
+  crédito/CasasBahia Pay. Interessa tudo que ajude a construir, baratear ou
+  acelerar esses projetos: novos modelos e preços, ganhos de performance,
+  técnicas de agentes, MCP, ferramentas, frameworks e casos de uso em varejo.
+
+# Modelos Claude usados
+models:
+  # síntese final do digest (mais capaz)
+  synthesis: claude-opus-4-8
+  # (reservado para filtragem em massa futura, mais barato)
+  triage: claude-haiku-4-5-20251001
+
+# Quantos itens no máximo enviar para a IA sintetizar por dia
+max_items_to_synthesize: 60
+
+# Janela de coleta: só considera itens publicados nas últimas N horas
+lookback_hours: 30
+
+# Título do dashboard
+dashboard_title: "Radar de IA — Grupo Casas Bahia"

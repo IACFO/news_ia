@@ -1,0 +1,51 @@
+# Fontes do radar de IA.
+# Tipos suportados: rss | arxiv | hackernews
+# Ajuste à vontade — adicione/remova feeds sem tocar no código.
+
+rss:
+  # --- Labs / empresas ---
+  - name: Google DeepMind
+    url: https://deepmind.google/blog/rss.xml
+    tag: labs
+  - name: Hugging Face Blog
+    url: https://huggingface.co/blog/feed.xml
+    tag: open-source
+  - name: OpenAI News
+    url: https://openai.com/news/rss.xml
+    tag: labs
+  - name: Microsoft Research
+    url: https://www.microsoft.com/en-us/research/feed/
+    tag: labs
+
+  # --- Curadoria / newsletters ---
+  - name: The Batch (DeepLearning.AI)
+    url: https://www.deeplearning.ai/the-batch/feed/
+    tag: curadoria
+  - name: Import AI
+    url: https://importai.substack.com/feed
+    tag: curadoria
+  - name: Latent Space
+    url: https://www.latent.space/feed
+    tag: curadoria
+  - name: Simon Willison
+    url: https://simonwillison.net/atom/everything/
+    tag: curadoria
+
+  # --- Mídia especializada ---
+  - name: VentureBeat AI
+    url: https://venturebeat.com/category/ai/feed/
+    tag: midia
+  - name: MIT Technology Review - AI
+    url: https://www.technologyreview.com/topic/artificial-intelligence/feed
+    tag: midia
+
+# arXiv: papers recentes nas categorias de IA/ML/NLP
+arxiv:
+  categories: [cs.AI, cs.CL, cs.LG]
+  max_results: 25
+
+# Hacker News: histórias sobre IA com tração (via Algolia API)
+hackernews:
+  query: "AI OR LLM OR agents OR MCP"
+  min_points: 80
+  max_results: 20

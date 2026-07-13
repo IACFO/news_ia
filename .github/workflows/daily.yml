@@ -1,0 +1,65 @@
+name: Radar de IA — digest diário
+
+on:
+  schedule:
+    # 09:00 no horário de Brasília (12:00 UTC), de segunda a sexta
+    - cron: "0 12 * * 1-5"
+  workflow_dispatch: {}  # permite rodar manualmente pela aba Actions
+
+permissions:
+  contents: write  # para commitar o histórico (data/ e docs/) de volta
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+        run: python src/main.py
+
+      - name: Commitar histórico e dashboard
+        run: |
+          git config user.name "radar-ia-bot"
+          git config user.email "actions@github.com"
+          git add data/ docs/
+          git commit -m "chore: digest $(date -u +%Y-%m-%d)" || echo "nada novo para commitar"
+          git push
+
+  # Publica a pasta docs/ no GitHub Pages
+  deploy-pages:
+    needs: digest
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Pull últimas alterações (commit do job anterior)
+        run: git pull --ff-only || true
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4
