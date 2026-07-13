@@ -46,6 +46,6 @@ arxiv:
 
 # Hacker News: histórias sobre IA com tração (via Algolia API)
 hackernews:
-  query: "AI OR LLM OR agents OR MCP"
-  min_points: 80
+  query: "AI"          # busca full-text; o Algolia não faz "OR" booleano
+  min_points: 50
   max_results: 20

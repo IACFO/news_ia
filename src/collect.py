@@ -60,22 +60,29 @@ def collect_rss(feeds: list[dict], lookback_hours: int) -> list[dict]:
 
 
 def collect_arxiv(cfg: dict, lookback_hours: int) -> list[dict]:
-    cats = "+OR+".join(f"cat:{c}" for c in cfg.get("categories", ["cs.AI"]))
-    url = (
-        "http://export.arxiv.org/api/query?"
-        f"search_query={cats}&sortBy=submittedDate&sortOrder=descending"
-        f"&max_results={cfg.get('max_results', 25)}"
-    )
+    cats = " OR ".join(f"cat:{c}" for c in cfg.get("categories", ["cs.AI"]))
+    params = {
+        "search_query": cats,
+        "sortBy": "submittedDate",
+        "sortOrder": "descending",
+        "max_results": cfg.get("max_results", 25),
+    }
     items = []
     try:
-        resp = httpx.get(url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
+        resp = httpx.get(
+            "https://export.arxiv.org/api/query",
+            params=params,
+            timeout=TIMEOUT,
+            headers={"User-Agent": USER_AGENT},
+            follow_redirects=True,
+        )
         resp.raise_for_status()
         ns = {"a": "http://www.w3.org/2005/Atom"}
         root = ET.fromstring(resp.text)
         for entry in root.findall("a:entry", ns):
+            # arXiv anuncia em lote (com atraso e sem fins de semana), então não
+            # filtramos por janela de tempo aqui — a deduplicação evita repetição.
             published = _parse_date(entry.findtext("a:published", default="", namespaces=ns))
-            if not _within_window(published, lookback_hours):
-                continue
             title = (entry.findtext("a:title", default="", namespaces=ns) or "").strip()
             summary = (entry.findtext("a:summary", default="", namespaces=ns) or "").strip()[:600]
             link = ""
@@ -100,15 +107,21 @@ def collect_arxiv(cfg: dict, lookback_hours: int) -> list[dict]:
 
 def collect_hackernews(cfg: dict, lookback_hours: int) -> list[dict]:
     since = int((datetime.now(timezone.utc) - timedelta(hours=lookback_hours)).timestamp())
-    url = (
-        "https://hn.algolia.com/api/v1/search_by_date"
-        f"?query={httpx.QueryParams({'q': cfg.get('query', 'AI')})['q']}"
-        f"&tags=story&numericFilters=points>{cfg.get('min_points', 80)},created_at_i>{since}"
-        f"&hitsPerPage={cfg.get('max_results', 20)}"
-    )
+    params = {
+        "query": cfg.get("query", "AI"),
+        "tags": "story",
+        "numericFilters": f"points>{cfg.get('min_points', 80)},created_at_i>{since}",
+        "hitsPerPage": cfg.get("max_results", 20),
+    }
     items = []
     try:
-        resp = httpx.get(url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
+        resp = httpx.get(
+            "https://hn.algolia.com/api/v1/search_by_date",
+            params=params,
+            timeout=TIMEOUT,
+            headers={"User-Agent": USER_AGENT},
+            follow_redirects=True,
+        )
         resp.raise_for_status()
         for hit in resp.json().get("hits", []):
             link = hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID')}"
