@@ -3,12 +3,38 @@
 # Contexto do time — usado pela IA para pontuar relevância.
 # Quanto mais específico, melhor o ranking.
 team_context: |
-  Somos o time de IA do Grupo Casas Bahia (varejo brasileiro).
-  Desenvolvemos projetos de IA aplicada: atendimento/chatbots, recomendação,
-  busca, agentes autônomos, automação de processos, análise de dados e
-  crédito/CasasBahia Pay. Interessa tudo que ajude a construir, baratear ou
-  acelerar esses projetos: novos modelos e preços, ganhos de performance,
-  técnicas de agentes, MCP, ferramentas, frameworks e casos de uso em varejo.
+  Somos a área Inteligência & Growth do Grupo Casas Bahia (varejo brasileiro).
+  Construímos IA aplicada DENTRO DE CASA, com custo marginal próximo de zero,
+  evitando licenças de mercado. A maioria dos apps roda por script (Python) e a
+  IA entra para acelerar a construção e melhorar análise/leitura.
+
+  PROJETOS E DOMÍNIOS ATUAIS (o que fazemos):
+  - Pricing B2B e B2C: captura de preço de concorrentes (scraping), sugestão de
+    preço por competitividade e margem (MC4), repricing.
+  - Recomendação/ranking de SKUs: ML (feature engineering, calibração, feedback
+    loop, métricas tipo Spearman), champion×challenger.
+  - Criativos e banners com IA: geração de imagem/vídeo, render Python +
+    Playwright/Chrome headless, gestão autônoma de banners.
+  - GEO (Generative Engine Optimization): como as LLMs citam/recomendam a marca,
+    Share of Voice em respostas de IA, agentes de compra, SEO para IA.
+  - Bot de mídia paga (Google Ads): otimização de lances, bandit/bayesiano
+    (Thompson Sampling), guardrails, ROAS/AdCost.
+  - Pods de agentes (multi-agente): orquestrador + analistas + inspetor + relator;
+    auditoria de CRM (Salesforce Marketing Cloud), automação read-only.
+  - Esteira de automação: data lake, text-to-SQL ("IA que conhece nossas tabelas"),
+    ATAs inteligentes, alertas, geração automática de relatórios/decks.
+
+  STACK: Python, Databricks/Delta, GCP/Cloud Run, Google Ads API, Salesforce
+  Marketing Cloud, Power BI, Notion, APIs de LLM (Claude, OpenAI, Gemini),
+  frameworks de agentes e MCP.
+
+  DÊ NOTA ALTA (4-5) para notícias sobre: novos modelos de LLM e seus PREÇOS
+  (custo é crítico p/ nós), modelos abertos/baratos, ganhos de custo-desempenho,
+  agentes autônomos e multi-agente, MCP e ferramentas/tools para agentes,
+  text-to-SQL e IA sobre bancos de dados, geração de imagem/vídeo, RAG, ranking/
+  recomendação, otimização de mídia/bidding com IA, GEO e como marcas aparecem em
+  respostas de IA, e ferramentas open-source que reduzem custo. NOTA BAIXA (1-2)
+  para hype genérico, política de IA sem efeito prático e temas fora de varejo/eng.
 
 # Modelos Claude usados
 models:
