@@ -1,8 +1,9 @@
-"""Usa a Claude API para agrupar, resumir e pontuar relevância dos itens."""
+"""Usa a API do Gemini (Google AI Studio) para agrupar, resumir e pontuar itens."""
 import json
 import os
 
-from anthropic import Anthropic
+from google import genai
+from google.genai import types
 
 SYSTEM_PROMPT = """Você é o analista do radar de IA de um time de engenharia.
 Recebe uma lista de itens de notícias/papers sobre IA coletados hoje e devolve um
@@ -39,7 +40,7 @@ Ordene os temas e os itens dentro de cada tema por relevância (maior primeiro).
 
 
 def synthesize(items: list[dict], team_context: str, model: str, max_items: int) -> dict:
-    """Chama Claude e devolve o digest estruturado. Faz fallback se algo falhar."""
+    """Chama o Gemini e devolve o digest estruturado. Faz fallback se algo falhar."""
     if not items:
         return {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}
 
@@ -55,22 +56,26 @@ def synthesize(items: list[dict], team_context: str, model: str, max_items: int)
         for it in items
     ]
 
-    client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     user_msg = (
         f"CONTEXTO DO TIME:\n{team_context}\n\n"
         f"ITENS COLETADOS HOJE ({len(payload)}):\n"
         f"{json.dumps(payload, ensure_ascii=False, indent=2)}"
     )
 
-    resp = client.messages.create(
+    resp = client.models.generate_content(
         model=model,
-        max_tokens=8000,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_msg}],
+        contents=user_msg,
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            response_mime_type="application/json",  # força JSON puro, sem ```
+            max_output_tokens=8000,
+            temperature=0.3,
+        ),
     )
-    text = "".join(block.text for block in resp.content if block.type == "text").strip()
+    text = (resp.text or "").strip()
 
-    # Claude às vezes embrulha em ```json ... ``` — limpa antes de parsear.
+    # Segurança: se ainda vier embrulhado em ```json ... ```, limpa antes de parsear.
     if text.startswith("```"):
         text = text.split("```", 2)[1]
         if text.startswith("json"):

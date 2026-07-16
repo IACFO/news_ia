@@ -12,14 +12,12 @@ team_context: |
 
 # Modelos Claude usados
 models:
-  # síntese final do digest — Haiku 4.5: mais barato ($1/$5 por milhão de
-  # tokens), dá conta bem de resumir/agrupar/rankear notícias.
-  # Para mais qualidade (a um custo maior), troque por:
-  #   claude-sonnet-5   ($3/$15) — meio-termo
-  #   claude-opus-4-8   ($5/$25) — máxima capacidade
-  synthesis: claude-haiku-4-5
+  # síntese final do digest — Gemini (Google AI Studio), com tier gratuito.
+  # gemini-2.5-flash: rápido e barato, ótimo para resumir/agrupar/rankear.
+  # Alternativas: gemini-2.5-flash-lite (mais barato) | gemini-2.5-pro (mais capaz)
+  synthesis: gemini-2.5-flash
   # (reservado para filtragem em massa futura, mais barato ainda)
-  triage: claude-haiku-4-5
+  triage: gemini-2.5-flash-lite
 
 # Quantos itens no máximo enviar para a IA sintetizar por dia
 max_items_to_synthesize: 60
