@@ -69,8 +69,11 @@ def synthesize(items: list[dict], team_context: str, model: str, max_items: int)
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
             response_mime_type="application/json",  # força JSON puro, sem ```
-            max_output_tokens=8000,
+            max_output_tokens=16000,
             temperature=0.3,
+            # gemini-2.5-flash "pensa" por padrão e gasta tokens de saída nisso,
+            # o que cortava o JSON. Desligamos: a tarefa não precisa de raciocínio.
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
         ),
     )
     text = (resp.text or "").strip()
@@ -85,7 +88,13 @@ def synthesize(items: list[dict], team_context: str, model: str, max_items: int)
     try:
         digest = json.loads(text)
     except json.JSONDecodeError:
-        print("[summarize] resposta não veio em JSON; usando fallback bruto.")
+        # Diagnóstico: por que falhou? (motivo de parada + trecho da resposta)
+        try:
+            finish = resp.candidates[0].finish_reason
+        except Exception:  # noqa: BLE001
+            finish = "?"
+        print(f"[summarize] JSON inválido (finish_reason={finish}); usando fallback bruto.")
+        print(f"[summarize] início da resposta: {text[:300]!r}")
         digest = {
             "tldr": ["A IA não conseguiu estruturar o digest hoje. Itens brutos abaixo."],
             "themes": [
