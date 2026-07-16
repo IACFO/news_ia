@@ -33,24 +33,44 @@ def connect() -> sqlite3.Connection:
     return conn
 
 
-def filter_new(items: list[dict]) -> list[dict]:
-    """Devolve só os itens que ainda não tinham sido vistos e os marca como vistos."""
+def filter_unseen(items: list[dict]) -> list[dict]:
+    """Devolve só os itens ainda não vistos — SEM marcá-los (somente leitura).
+
+    A marcação fica para mark_seen(), chamado apenas após um resumo bem-sucedido,
+    para que uma falha de síntese não "queime" os itens.
+    """
+    conn = connect()
+    unseen = []
+    for item in items:
+        row = conn.execute("SELECT 1 FROM seen WHERE id = ?", (_item_id(item),)).fetchone()
+        if not row:
+            unseen.append(item)
+    conn.close()
+    return unseen
+
+
+def mark_seen(items: list[dict]) -> None:
+    """Marca itens como vistos. Chamar só depois de salvar um digest bom."""
     conn = connect()
     now = datetime.now(timezone.utc).isoformat()
-    new_items = []
     for item in items:
-        iid = _item_id(item)
-        row = conn.execute("SELECT 1 FROM seen WHERE id = ?", (iid,)).fetchone()
-        if row:
-            continue
         conn.execute(
             "INSERT OR IGNORE INTO seen (id, url, title, first_seen) VALUES (?, ?, ?, ?)",
-            (iid, item.get("url"), item.get("title"), now),
+            (_item_id(item), item.get("url"), item.get("title"), now),
         )
-        new_items.append(item)
     conn.commit()
     conn.close()
-    return new_items
+
+
+def load_digest(date_str: str) -> dict | None:
+    """Carrega o digest de um dia específico, se existir."""
+    path = DIGEST_DIR / f"{date_str}.json"
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def save_digest(date_str: str, digest: dict) -> Path:

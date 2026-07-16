@@ -39,10 +39,13 @@ Responda APENAS com JSON válido, sem texto ao redor, neste formato:
 Ordene os temas e os itens dentro de cada tema por relevância (maior primeiro)."""
 
 
-def synthesize(items: list[dict], team_context: str, model: str, max_items: int) -> dict:
-    """Chama o Gemini e devolve o digest estruturado. Faz fallback se algo falhar."""
+def synthesize(
+    items: list[dict], team_context: str, model: str, max_items: int
+) -> tuple[dict, bool]:
+    """Chama o Gemini e devolve (digest, ok). ok=False em falha/fallback — o main
+    usa isso para NÃO marcar os itens como vistos, permitindo nova tentativa."""
     if not items:
-        return {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}
+        return {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}, False
 
     items = items[:max_items]
     payload = [
@@ -114,4 +117,5 @@ def synthesize(items: list[dict], team_context: str, model: str, max_items: int)
                 }
             ],
         }
-    return digest
+        return digest, False  # fallback: não marca como visto, permite retry
+    return digest, True

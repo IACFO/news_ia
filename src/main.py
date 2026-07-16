@@ -35,21 +35,36 @@ def main() -> None:
     settings = load_yaml("settings.yaml")
     lookback = settings.get("lookback_hours", 30)
 
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     # 1) Coletar
     raw = collect.collect_all(sources, lookback)
 
-    # 2) Deduplicar (remove o que já foi visto em dias anteriores)
-    new_items = store.filter_new(raw)
+    # 2) Filtrar o que já foi visto (SEM marcar ainda — só leitura)
+    new_items = store.filter_unseen(raw)
     print(f"[main] {len(new_items)} itens novos após dedup")
 
-    # 3) Resumir/rankear com Claude
-    digest = summarize.synthesize(
+    # 2b) Sem itens novos: não sobrescreve um digest bom já existente do dia.
+    if not new_items:
+        existing = store.load_digest(date_str)
+        if existing and existing.get("themes"):
+            print("[main] sem itens novos; mantendo o digest existente de hoje")
+            render.build_dashboard(settings.get("dashboard_title", "Radar de IA"))
+            return
+        digest = {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}
+        digest.update(date=date_str, item_count=0)
+        store.save_digest(date_str, digest)
+        render.build_dashboard(settings.get("dashboard_title", "Radar de IA"))
+        print("[main] concluído: nenhum item novo hoje")
+        return
+
+    # 3) Resumir/rankear com o Gemini
+    digest, ok = summarize.synthesize(
         new_items,
         team_context=settings.get("team_context", ""),
         model=settings["models"]["synthesis"],
         max_items=settings.get("max_items_to_synthesize", 60),
     )
-    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     digest["date"] = date_str
     digest["item_count"] = len(new_items)
 
@@ -57,13 +72,19 @@ def main() -> None:
     store.save_digest(date_str, digest)
     render.build_dashboard(settings.get("dashboard_title", "Radar de IA"))
 
-    # 5) Notificar canais
+    # 5) Só marca como visto se a síntese deu certo (senão, permite nova tentativa)
+    if ok:
+        store.mark_seen(new_items)
+    else:
+        print("[main] síntese falhou; itens NÃO marcados como vistos (retry possível)")
+
+    # 6) Notificar canais (só quando o digest é bom)
     if args.dry_run:
         print("[main] dry-run: pulando notificações")
-    else:
+    elif ok:
         notify.notify_all(digest)
 
-    print(f"[main] concluído para {date_str} ({len(new_items)} itens)")
+    print(f"[main] concluído para {date_str} ({len(new_items)} itens, ok={ok})")
 
 
 if __name__ == "__main__":
