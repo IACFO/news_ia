@@ -56,7 +56,7 @@ def notify_teams(digest: dict, dashboard_url: str) -> None:
     bullets = "".join(f"<li>{b}</li>" for b in _top_bullets(digest))
     html = (
         f"<h3>🛰️ Radar de IA — {digest.get('date', '')}</h3>"
-        f"<b>TL;DR do dia</b><ul>{bullets}</ul>"
+        f"<b>TL;DR da semana</b><ul>{bullets}</ul>"
     )
     if dashboard_url:
         html += f'<p><a href="{dashboard_url}">Ver compilado completo no dashboard →</a></p>'

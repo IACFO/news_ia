@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 SYSTEM_PROMPT = """Você é o analista do radar de IA de um time de engenharia.
-Recebe uma lista de itens de notícias/papers sobre IA coletados hoje e devolve um
+Recebe uma lista de itens de notícias/papers sobre IA coletados na semana e devolve um
 compilado consolidado, em português do Brasil, com tom direto e sem jargão.
 
 Sua tarefa:
@@ -15,7 +15,7 @@ Sua tarefa:
    "Performance e custo", "Ferramentas", "Papers", "Varejo/negócio").
 3. Para cada item mantido, escrever um resumo de 1-2 frases e uma nota de
    relevância de 1 a 5 para ESTE time (5 = impacto direto nos projetos deles).
-4. Escrever um "TL;DR" de 2-4 bullets com o mais importante do dia.
+4. Escrever um "TL;DR" de 3-5 bullets com o mais importante da semana.
 
 Responda APENAS com JSON válido, sem texto ao redor, neste formato:
 {
@@ -45,7 +45,7 @@ def synthesize(
     """Chama o Gemini e devolve (digest, ok). ok=False em falha/fallback — o main
     usa isso para NÃO marcar os itens como vistos, permitindo nova tentativa."""
     if not items:
-        return {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}, False
+        return {"tldr": ["Nenhuma novidade relevante coletada nesta semana."], "themes": []}, False
 
     items = items[:max_items]
     payload = [
@@ -62,7 +62,7 @@ def synthesize(
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     user_msg = (
         f"CONTEXTO DO TIME:\n{team_context}\n\n"
-        f"ITENS COLETADOS HOJE ({len(payload)}):\n"
+        f"ITENS COLETADOS NESTA SEMANA ({len(payload)}):\n"
         f"{json.dumps(payload, ensure_ascii=False, indent=2)}"
     )
 
@@ -99,7 +99,7 @@ def synthesize(
         print(f"[summarize] JSON inválido (finish_reason={finish}); usando fallback bruto.")
         print(f"[summarize] início da resposta: {text[:300]!r}")
         digest = {
-            "tldr": ["A IA não conseguiu estruturar o digest hoje. Itens brutos abaixo."],
+            "tldr": ["A IA não conseguiu estruturar o digest desta semana. Itens brutos abaixo."],
             "themes": [
                 {
                     "name": "Itens coletados",

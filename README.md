@@ -1,7 +1,7 @@
 # 🛰️ Radar de IA — Grupo Casas Bahia
 
 Bot que varre fontes confiáveis de IA (labs, papers, newsletters, mídia, comunidade)
-e gera um **compilado diário** consolidado para o time de IA: lançamentos, modelos,
+e gera um **compilado semanal** consolidado para o time de IA: lançamentos, modelos,
 performance, agentes, MCP, ferramentas e casos de uso.
 
 Entrega em dois canais:
@@ -47,7 +47,7 @@ Abra `docs/index.html` no navegador para ver o dashboard gerado.
    - Secret `TEAMS_WEBHOOK_URL` e/ou `SLACK_WEBHOOK_URL` (Incoming Webhook do canal)
    - Variable `DASHBOARD_URL` (o link do GitHub Pages, ex.: `https://SUA-ORG.github.io/news_ia/`)
 3. Em **Settings → Pages**, selecione *GitHub Actions* como source.
-4. Pronto — o workflow [daily.yml](.github/workflows/daily.yml) roda 09h (BRT) em dias úteis.
+4. Pronto — o workflow [daily.yml](.github/workflows/daily.yml) roda toda **sexta-feira** às 09h (BRT).
    Dá para rodar na hora pela aba **Actions → Run workflow**.
 
 ## Próximos passos (roadmap)

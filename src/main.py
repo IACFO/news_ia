@@ -51,7 +51,7 @@ def main() -> None:
             print("[main] sem itens novos; mantendo o digest existente de hoje")
             render.build_dashboard(settings.get("dashboard_title", "Radar de IA"))
             return
-        digest = {"tldr": ["Nenhuma novidade relevante coletada hoje."], "themes": []}
+        digest = {"tldr": ["Nenhuma novidade relevante coletada nesta semana."], "themes": []}
         digest.update(date=date_str, item_count=0)
         store.save_digest(date_str, digest)
         render.build_dashboard(settings.get("dashboard_title", "Radar de IA"))

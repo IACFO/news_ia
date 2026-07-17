@@ -85,10 +85,10 @@ def _render_page(digest: dict, all_dates: list[str], active: str, title: str) ->
     date_label = digest.get("date", active)
     return f"""<!doctype html><html lang="pt-br"><head>{HEAD}
 <title>{_esc(title)} — {_esc(date_label)}</title><style>{CSS}</style></head><body>
-<header><h1>{_esc(title)}</h1><p>Compilado diário de novidades de IA · {_esc(date_label)}</p></header>
+<header><h1>{_esc(title)}</h1><p>Compilado semanal de novidades de IA · semana de {_esc(date_label)}</p></header>
 <div class="wrap">
 <main>
-<div class="tldr"><h2>TL;DR do dia</h2><ul>{tldr_items}</ul></div>
+<div class="tldr"><h2>TL;DR da semana</h2><ul>{tldr_items}</ul></div>
 {''.join(themes_html)}
 </main>
 <aside><h3>Histórico</h3>{{NAV}}</aside>

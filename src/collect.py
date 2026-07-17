@@ -38,7 +38,7 @@ def collect_rss(feeds: list[dict], lookback_hours: int) -> list[dict]:
         except Exception as exc:  # noqa: BLE001
             print(f"[rss] falha em {feed['name']}: {exc}")
             continue
-        for entry in parsed.entries[:15]:
+        for entry in parsed.entries[:25]:  # semanal: mais posts por feed
             published = _parse_date(
                 entry.get("published") or entry.get("updated") or entry.get("published_parsed")
             )
@@ -72,7 +72,7 @@ def collect_arxiv(cfg: dict, lookback_hours: int) -> list[dict]:
         resp = httpx.get(
             "https://export.arxiv.org/api/query",
             params=params,
-            timeout=TIMEOUT,
+            timeout=45.0,  # arXiv é lento com muitos resultados (semanal)
             headers={"User-Agent": USER_AGENT},
             follow_redirects=True,
         )

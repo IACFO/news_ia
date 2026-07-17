@@ -1,9 +1,9 @@
-name: Radar de IA — digest diário
+name: Radar de IA — digest semanal
 
 on:
   schedule:
-    # 09:00 no horário de Brasília (12:00 UTC), de segunda a sexta
-    - cron: "0 12 * * 1-5"
+    # Sexta-feira às 09:00 no horário de Brasília (12:00 UTC)
+    - cron: "0 12 * * 5"
   workflow_dispatch: {}  # permite rodar manualmente pela aba Actions
 
 permissions:

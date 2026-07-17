@@ -39,13 +39,13 @@ rss:
     url: https://www.technologyreview.com/topic/artificial-intelligence/feed
     tag: midia
 
-# arXiv: papers recentes nas categorias de IA/ML/NLP
+# arXiv: papers recentes nas categorias de IA/ML/NLP (semanal = mais)
 arxiv:
   categories: [cs.AI, cs.CL, cs.LG]
-  max_results: 25
+  max_results: 60
 
 # Hacker News: histórias sobre IA com tração (via Algolia API)
 hackernews:
   query: "AI"          # busca full-text; o Algolia não faz "OR" booleano
-  min_points: 50
-  max_results: 20
+  min_points: 80       # semanal: sobe o corte p/ pegar só o que teve tração de verdade
+  max_results: 40
